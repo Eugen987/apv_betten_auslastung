@@ -12,16 +12,20 @@ const job = () => {
         else {
             if (response.statusCode === 200){
                 //console.log(body.data[0]) // Print the json response
-                let klinikum = body.data.find(c => c.krankenhausStandort.bezeichnung === 'Universitätsklinikum Mannheim Gmbh, Hauptstandort');
-                fs.appendFile('./data/intensivAuslastung.csv',
-                    `${klinikum.meldezeitpunkt.split('T')[0]};${klinikum.bettenStatus.statusLowCare};${klinikum.bettenStatus.statusHighCare};${klinikum.bettenStatus.statusECMO}\n`,
-                    (err) =>{
-                        if(err){
-                             console.log(err);
-                             return;
-                        }
-                        console.log('SUCCESS');
-                });
+                let mannheimKh = body.data.filter(c => c.krankenhausStandort.ort === 'Mannheim');
+                for (let kh of mannheimKh){
+                    console.log(kh.krankenhausStandort.bezeichnung);
+                    fs.appendFile('./data/intensivAuslastung.csv',
+                        `${kh.meldezeitpunkt.split('T')[0]};${kh.krankenhausStandort.bezeichnung.split(' ')[0]};${kh.bettenStatus.statusLowCare};${kh.bettenStatus.statusHighCare};${kh.bettenStatus.statusECMO}\n`,
+                        (err) =>{
+                            if(err){
+                                console.log(err);
+                                return;
+                            }
+                            console.log('SUCCESS');
+                        });
+                }
+
             }
             else {
                 console.log("statuscode = "+response.statusCode);
